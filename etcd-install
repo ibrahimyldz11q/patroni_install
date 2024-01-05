@@ -1,0 +1,81 @@
+3.5 Versiyonunu Kuracağım
+
+https://etcd.io/docs/v3.5/install/
+
+Tar dosyasını 3 sunucuya attık
+Tar dosyasını açalım
+Açtığım dosyası /usr/local/bin atmak
+
+mv /tmp/etcd-download-test/etcd* /usr/local/bin/
+
+etcd --version
+
+Kullanıcı ve grup eklemek
+
+sudo groupadd --system etcd
+sudo useradd -s /sbin/nologin --system -g etcd etcd
+
+Selinux ve firewall komutları kontrol etmek
+Sestatus
+Systemctl status firewalld disable olması gerek 
+
+Dosyaların oluşturulması
+
+sudo mkdir -p /var/lib/etcd/
+sudo mkdir /etc/etcd
+sudo chown -R etcd:etcd /var/lib/etcd/
+sudo chmod -R 700 /var/lib/etcd/
+
+ 
+
+1.NODE İÇİN İPLERİ DEĞİŞTİR SADECE
+2.NODE İÇİN İPLERİ DEĞİŞTİR SADECE
+3.NODE İÇİN İPLERİ DEĞİŞTİR SADECE
+
+/lib/systemd/system/etcd.service
+
+ [Unit]
+ Description=etcd service
+ Documentation=https://github.com/coreos/etcd
+
+ [Service]
+ User=etcd
+ Type=notify
+ ExecStart=/usr/local/bin/etcd \
+  --name HOTNAME \
+  --enable-v2=true \
+  --data-dir /var/lib/etcd \
+  --initial-advertise-peer-urls http://HOST:2380 \   KURULU OLAN SUNUCU IPSİ DEĞİŞTİR
+  --listen-peer-urls http://HOST:2380 \ KURULU OLAN SUNUCU İPSİİ DEĞİŞT
+  --listen-client-urls http://HOST:2379,http://127.0.0.1:2379 \ KURULU OLAN SUNUCU İPSİİ DEĞİŞT
+  --advertise-client-urls http://HOST:2379 \ KURULU OLAN SUNUCU İPSİİ DEĞİŞTİR
+  --initial-cluster-token etcd-cluster-1 \
+  --initial-cluster HOSTNAME=http://HOST,HOSTNAME=http://HOST:2380 \ tüm ipler yazılır hostname ip belinde
+  --initial-cluster-state new \
+  --heartbeat-interval 1000 \
+  --election-timeout 5000
+ Restart=on-failure
+ RestartSec=5
+
+ [Install]
+ WantedBy=multi-user.target
+
+SERVİSLERİ ÇALIŞTIRMAK
+
+systemctl daemon-reload
+systemctl enable etcd
+systemctl start etcd.service
+systemctl status -l etcd.service
+
+LİST KOMUTU
+
+etcdctl member list
+etcdctl endpoint status --write-out=table TABLO ŞEKLİNDE YAZAR 
+
+LEADERLERİ KONTROL ETMEK
+
+etcdctl endpoint status --write-out=table
+
+FİREWALL DURUMU
+
+Bütün nodelar birbiriyle haberleşmesi gerekiyor portlardan
