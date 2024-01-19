@@ -1,2 +1,5 @@
 # patroni_install
-3etc 2haproxy 2 postgresql
+2 postgresql + patroni
+1 etc + haproxy
+
+
